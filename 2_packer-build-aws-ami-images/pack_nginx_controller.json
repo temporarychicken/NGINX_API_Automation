@@ -132,7 +132,7 @@
     {
       "type": "file",
       "source": "private_ip.txt",
-      "destination": "../terraform-deploy-platform/private_ip.txt",
+      "destination": "../3_terraform-deploy-platform/private_ip.txt",
 	  "direction" : "download",
       "only": [
         "nginx-controller"
