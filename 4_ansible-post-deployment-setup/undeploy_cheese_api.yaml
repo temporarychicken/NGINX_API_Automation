@@ -1,0 +1,111 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars:
+
+    controller_auth_user: "a.user@f5.com"
+    controller_auth_password: "Password1"
+    controller_domain_name: "controller.nginxdemo.net"
+    controller_api_version: "v1"
+
+    controller_user_request_body:
+      username: "d.luke@f5.com"
+      password: "ToiletRoll130!&$"
+
+  tasks:
+
+    - name: Log into NGINX Controller
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/platform/login
+        method: POST
+        body_format: json 
+        body: 
+          credentials: 
+            type: "BASIC"
+            username: "{{ controller_auth_user }}"
+            password: "{{ controller_auth_password }}"
+        status_code: 204
+        validate_certs: false
+      register: session
+
+    - name: Store session cookie as fact
+      set_fact:
+        nginx_controller_session: "{{ session }}"
+
+    - name: Delete Published Cheese API
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/staging/apps/cheesevtwo/published-apis/cheesevtwo
+        method: DELETE
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        status_code: 202,204,400,404
+        validate_certs: false
+      register: delete_published_api_result
+      until: delete_published_api_result is not failed
+      retries: 5
+
+    - name: Delete Staging Gateway
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/staging/gateways/cheesevtwogateway
+        method: DELETE
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        status_code: 202,404
+        validate_certs: false
+      register: delete_staging_gateway_result
+      until: delete_staging_gateway_result is not failed
+      retries: 5
+
+
+    - name: Delete Cheese V2 App
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/staging/apps/cheesevtwo
+        method: DELETE
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        status_code: 202,204,404
+        validate_certs: false
+      register: delete_app_result
+      until: delete_app_result is not failed
+      retries: 5
+
+    - name: Delete Cheese Staging Cert
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/staging/certs/nginxdemo.net
+        method: DELETE 
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        status_code: 202,204,404
+        validate_certs: false
+      register: delete_staging_cert_result
+      until: delete_staging_cert_result is not failed
+      retries: 5
+
+
+    - name: Delete Cheese Staging Environment
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/staging
+        method: DELETE 
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        status_code: 202,204,404
+        validate_certs: false
+      register: delete_staging_environment_result
+      until: delete_staging_environment_result is not failed
+      retries: 5
+
+
+    - name: Delete Cheese API
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/api-definitions/cheesevtwo
+        method: DELETE 
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        status_code: 202,204,404
+        validate_certs: false
+      register: delete_api_result
+      until: delete_api_result is not failed
+      retries: 5
+

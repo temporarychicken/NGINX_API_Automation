@@ -1,0 +1,123 @@
+{
+  "description": "Create an NGINX Plus and two NGINX Open Source Images",
+  "variables": {
+    "home": "{{env `HOME`}}",
+    "aws_access_key": "",
+    "aws_secret_key": "",
+    "region": "eu-west-2"
+  },
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "name": "ngx-plus",
+      "ami_name": "nginx-plus {{isotime \"2006-01-02\"}}{{uuid}}",
+      "instance_type": "t2.micro",
+      "region": "{{user `region`}}",
+      "source_ami": "ami-006a0174c6c25ac06",
+      "ssh_username": "ubuntu",
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+      "tags": {
+        "Name": "ngx-plus"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "{{user `home`}}/.ssh/ngx-certs",
+      "destination": "~/.ssh/ngx-certs",
+      "only": [
+        "ngx-plus"
+      ]
+    },
+    {
+      "type": "file",
+      "source": "connect_nginx_server_to_controller.yaml",
+      "destination": "connect_nginx_server_to_controller.yaml",
+      "only": [
+        "ngx-plus"
+      ]
+    },
+    {
+      "type": "file",
+      "source": "configure_me_here.yaml",
+      "destination": "configure_me_here.yaml",
+      "only": [
+        "ngx-plus"
+      ]
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sudo -H apt-get update -y",
+		"sudo -H apt-get upgrade -y",
+        "sudo -H apt-get update -y",
+        "sudo -H apt-get install -y python-pip",
+        "sudo -H pip install ansible",
+		"ssh-keygen -f /tmp/sshkey -q -N ''",
+		"chmod +r /tmp/sshkey"
+      ],
+      "only": [
+        "ngx-plus"
+      ]
+    },
+   {
+      "type": "file",
+      "destination": "{{user `home`}}/.ssh/nginx-server-key.pub",
+      "source": "/tmp/sshkey.pub",
+	  "direction" : "download",
+      "only": [
+        "ngx-plus"
+      ]
+    },
+   {
+      "type": "file",
+      "destination": "{{user `home`}}/.ssh/nginx-server-key.pem",
+      "source": "/tmp/sshkey",
+	  "direction" : "download",
+      "only": [
+        "ngx-plus"
+      ]
+    },		
+    {
+      "type": "ansible-local",
+      "galaxy_file": "requirements.yml",
+      "playbook_file": "playbook-lb.yml",
+      "only": [
+        "ngx-plus"
+      ]
+    },
+	
+    {
+      "type": "shell",
+      "inline": [
+        "sudo -H apt update -y",
+        "sudo -H apt update -y",
+        "sudo apt-get install nginx-plus-module-njs",
+	    "#sudo apt upgrade -y"
+      ],
+      "only": [
+        "ngx-plus"
+      ]
+    },	
+	
+		
+	
+    {
+      "type": "shell",
+      "script": "setup-instance.sh",
+      "only": [
+        "ngx-plus"
+      ]
+    },
+    {
+      "type": "shell",
+      "script": "setup_cheese_endpoint.sh",
+      "only": [
+        "ngx-plus"
+      ]
+    }
+	
+  ]
+}

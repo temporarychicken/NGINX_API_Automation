@@ -1,0 +1,428 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars:
+
+    controller_auth_user: "a.user@f5.com"
+    controller_auth_password: "Password1"
+    controller_domain_name: "controller.nginxdemo.net"
+    controller_api_version: "v1"
+
+    controller_user_request_body:
+      username: "a.userf5.com"
+      password: "Password1"
+
+    gateway1_target_ip:   10.0.1.20
+    gateway2_target_ip:   10.0.1.30      
+    apibackend_target_ip: 10.0.1.90      
+    
+
+  tasks:
+      
+
+    - name: Log into NGINX Controller
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/platform/login
+        method: POST
+        body_format: json 
+        body: 
+          credentials: 
+            type: "BASIC"
+            username: "{{ controller_auth_user }}"
+            password: "{{ controller_auth_password }}"
+        status_code: 204
+        validate_certs: false
+      register: session
+
+    - name: Store session cookie as fact
+      set_fact:
+        nginx_controller_session: "{{ session }}"
+
+
+    - name: Work out which of the three instantiated NGINX instances are destined to be gateway 1, gateway2 and the apibackend
+      uri:
+        url: https://{{ controller_domain_name }}/api/v1/infrastructure/locations/unspecified/instances
+        method: GET
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body:
+        status_code: 200
+        validate_certs: false
+      register: instances
+      
+    - name: Store the list of instances as a fact
+      set_fact:
+        nginx_server_instances: "{{ instances }}"
+
+    - name: Debugging info 1
+      debug:
+        msg: "Instance IP address: {{ nginx_server_instances.json['items'][0].currentStatus.legacySystemMetadata.network.interfaces[1].ipv4.address}} has instance ID: {{ nginx_server_instances.json['items'][0].metadata.name}}"
+        
+    - name: Debugging info 1
+      debug:        
+        msg: "Instance IP address: {{ nginx_server_instances.json['items'][1].currentStatus.legacySystemMetadata.network.interfaces[1].ipv4.address}} has instance ID: {{ nginx_server_instances.json['items'][1].metadata.name}}"
+        
+    - name: Debugging info 1
+      debug:
+        msg: "Instance IP address: {{ nginx_server_instances.json['items'][2].currentStatus.legacySystemMetadata.network.interfaces[1].ipv4.address}} has instance ID: {{ nginx_server_instances.json['items'][2].metadata.name}}"
+        
+        
+    - name: get Instance ID for gateway1 which is getting DNS resolution from cheese-staging.nginxplus.net
+      set_fact:
+        gateway1_instance_id: "{{ nginx_server_instances.json|json_query('items[?currentStatus.legacySystemMetadata.network.interfaces[1].ipv4.address == `{}`]|[0].metadata.name'.format(gateway1_target_ip)) }}"
+
+    - name: get Instance ID for gateway2 which is getting DNS resolution from cheese.nginxplus.net
+      set_fact:
+        gateway2_instance_id: "{{ nginx_server_instances.json|json_query('items[?currentStatus.legacySystemMetadata.network.interfaces[1].ipv4.address == `{}`]|[0].metadata.name'.format(gateway2_target_ip)) }}"
+
+    - name: get Instance ID for api backend which is getting DNS resolution from apibackend.nginxplus.net
+      set_fact:
+        apibackend_instance_id: "{{ nginx_server_instances.json|json_query('items[?currentStatus.legacySystemMetadata.network.interfaces[1].ipv4.address == `{}`]|[0].metadata.name'.format(apibackend_target_ip)) }}"
+
+
+    - debug:
+        var: gateway1_instance_id, gateway2_instance_id, apibackend_instance_id
+
+
+    - name: Give the NGINX server 10.0.1.20 a nice working name - NGINX Plus API Gateway 1
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/infrastructure/locations/unspecified/instances/{{gateway1_instance_id}}
+        method: PUT
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body:          
+            metadata:
+              name: "{{gateway1_instance_id}}"
+              displayName: "NGINX Plus API Gateway 1"
+              links:
+                rel: "/api/v1/infrastructure/locations/unspecified/instances/{{gateway1_instance_id}}"
+        status_code: 200,201,202
+        validate_certs: false     
+
+    - name: Give the NGINX server 10.0.1.30 a nice working name - NGINX Plus API Gateway 2
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/infrastructure/locations/unspecified/instances/{{gateway2_instance_id}}
+        method: PUT
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body:          
+            metadata:
+              name: "{{gateway2_instance_id}}"
+              displayName: "NGINX Plus API Gateway 2"
+              links:
+                rel: "/api/v1/infrastructure/locations/unspecified/instances/{{gateway2_instance_id}}"
+        status_code: 200,201,202
+        validate_certs: false     
+
+    - name: Give the NGINX server 10.0.1.90 a nice working name - NGINX Plus API Backend
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/infrastructure/locations/unspecified/instances/{{apibackend_instance_id}}
+        method: PUT
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body:          
+            metadata:
+              name: "{{apibackend_instance_id}}"
+              displayName: "NGINX Plus API Backend"
+              links:
+                rel: "/api/v1/infrastructure/locations/unspecified/instances/{{apibackend_instance_id}}"
+        status_code: 200,201,202
+        validate_certs: false     
+
+
+    - name: Create Staging Environment
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/staging
+        method: PUT
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body:
+          metadata:
+            name: staging
+            displayName: Staging
+            description: 'New Staging Platform for Cheese Application'
+            tags: []
+          desiredState: {}
+        status_code: 200,201
+        validate_certs: false
+
+    - name: Install Staging Certificate
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/staging/certs
+        method: POST
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body: "{{ lookup('file','staging-cert.json') }}"
+        status_code: 201,409
+        validate_certs: false
+
+
+    - name: Update Staging Gateway
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/staging/gateways/cheesevtwogateway
+        method: PUT
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body:
+          metadata:
+            name: cheesevtwogateway
+            displayName: Cheese Gateway V2
+            description: New staging platform for Cheese API V2.
+          desiredState:
+            ingress:
+              uris:
+                https://cheese-staging.nginxdemo.net: {}
+              placement:
+                instanceRefs:
+                - ref: "/infrastructure/locations/unspecified/instances/{{gateway1_instance_id}}"
+              tls:
+                certRef:
+                  ref: "/services/environments/staging/certs/nginxdemo.net"
+                preferServerCipher: DISABLED
+                sessionCache: 'OFF'
+        status_code: 201,202,409
+        validate_certs: false
+
+
+
+    - name: Create Cheese Application
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/staging/apps
+        method: POST
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body:
+          metadata:
+            name: cheesevtwo
+            displayName: Cheese Finder Application
+            description: An Application to provide detailled data on cheeses from around the world
+            tags:
+            - nibbles
+        status_code: 201,409
+        validate_certs: false
+
+    - name: Upsert Cheese API in OAS3 Spec format
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/api-definitions/cheesevtwo/oas-config
+        method: PUT
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body:
+          metadata:
+            name: cheesevtwo
+            displayName: Cheese API
+          desiredState:
+            spec: "{{ lookup('file','cheeseapioas3spec.json') }}"
+        status_code: 200,201,409
+        validate_certs: false
+
+    - name: Publish Cheese API towards the Cheese Application
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/staging/apps/cheesevtwo/published-apis/cheesevtwo
+        method: PUT
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body:
+         desiredState:
+           apiDefinitionRef:
+             ref: "/services/api-definitions/cheesevtwo"
+             links:
+               rel: "/api/v1/services/api-definitions/cheesevtwo"
+               name: staging
+               displayName: Staging Environment
+           gatewayRefs:
+           - ref: "/services/environments/staging/gateways/cheesevtwogateway"
+             links:
+               rel: "/api/v1/services/environments/staging/gateways/cheesevtwogateway"
+               name: staging
+               displayName: Staging Environment
+           componentRefs:
+           - ref: "/services/environments/staging/apps/cheesevtwo/components/emmental"
+             links:
+               rel: "/api/v1/services/environments/staging/apps/cheesevtwo/components/emmental"
+               name: emmental
+               displayName: Emmental
+           - ref: "/services/environments/staging/apps/cheesevtwo/components/gouda"
+           - ref: "/services/environments/staging/apps/cheesevtwo/components/cheddar"
+           - ref: "/services/environments/staging/apps/cheesevtwo/components/beemster"
+           - ref: "/services/environments/staging/apps/cheesevtwo/components/wensleydale"
+         metadata:
+           displayName: cheesevtwo
+           name: cheesevtwo
+        status_code: 200,201,202
+        validate_certs: false
+
+
+
+
+    - name: Create a new Security Group for JWT
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/security/identity-providers/cheese-security-group
+        method: PUT
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body:          
+            metadata:
+              name: cheese-jwt-security
+              displayName: Cheese JWT secuirty
+              description: This App Component provides a secure JWC capabilities to the site
+              kind: application-component
+              links:
+                rel: "/api/v1/services/environments/staging"
+            desiredState:
+              environmentRefs:
+              - ref: "/services/environments/staging"
+              identityProvider:
+                type: JWT
+                jwkFile:
+                  type: REMOTE_FILE
+                  uri: https://www.googleapis.com/oauth2/v3/certs
+                  cacheExpire: 10h
+
+        status_code: 200,201,202
+        validate_certs: false
+        
+    - name: Create a new Security Group for API key
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/security/identity-providers/cheese-apikey-security-group
+        method: PUT
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body:          
+ 
+            desiredState:
+              environmentRefs:
+              - ref: "/services/environments/staging"
+              identityProvider:
+                type: API_KEY
+            metadata:
+              displayName: Cheese API Key
+              name: cheese-apikey
+
+        status_code: 200,201,202
+        validate_certs: false
+        
+    - name: Create a new User Felix for API key security group
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/security/identity-providers/cheese-apikey-security-group/clients/felix
+        method: PUT
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body:          
+            metadata:
+              name: felix
+              displayName: Felix API Key
+              description: Felix's API key for access to the Cheese API
+              kind: application-component
+
+              links:
+                rel: "/api/v1/services/environments/staging"
+
+            desiredState:
+              credential:
+                type: API_KEY
+                apiKey: 4f2eca23c7f092112a90d03804fd6ab7
+
+
+        status_code: 200,201,202
+        validate_certs: false        
+        
+        
+    - name: Create a new User Brian for API key security group
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/security/identity-providers/cheese-apikey-security-group/clients/brian
+        method: PUT
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body:          
+            metadata:
+              name: brian
+              displayName: Brian API Key
+              description: Brian's API key for access to the Cheese API
+              kind: application-component
+
+              links:
+                rel: "/api/v1/services/environments/staging"
+
+            desiredState:
+              credential:
+                type: API_KEY
+                apiKey: 4f2eca23c7f092112a90d03804fd6ab8
+
+
+        status_code: 200,201,202
+        validate_certs: false     
+
+
+
+    - name: Create an App component to link the Cheese API to the Cheese Application
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/staging/apps/cheesevtwo/components/cheeses
+        method: PUT
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body:          
+          metadata:
+            name: cheeses
+            tags: []
+          desiredState:
+            security:
+ 
+              identityProviderRefs:
+              - ref: "/security/identity-providers/cheese-apikey-security-group"
+                links:
+                  rel: "/api/v1/security/identity-providers/cheese-apikey-security-group"
+                  name: staging
+                  displayName: Staging Environment
+              apiKeyClientAuth:
+                keyLocation: HEADER
+                key: apikey
+              interceptWorkloadErrors: DISABLED
+
+            ingress:
+              gatewayRefs:
+              - ref: "/services/environments/staging/gateways/cheesevtwogateway"
+              uris:
+                "/":
+                  matchMethod: PREFIX
+            publishedApiRefs:
+            - ref: "/services/environments/staging/apps/cheesevtwo/published-apis/cheesevtwo"
+            backend:
+              ntlmAuthentication: DISABLED
+              preserveHostHeader: DISABLED
+              workloadGroups:
+                cheesebackend:
+                  locationRefs:
+                  - ref: "/infrastructure/locations/unspecified"
+                  uris:
+                    http://10.0.1.90:8088:
+                      isBackup: false
+                      isDown: false
+                      isDrain: false
+                      resolve: DISABLED
+
+            programmability:
+              uriRewrites:
+              - incomingPattern: "^/api/v1(.*)$"
+                rewritePattern: "$1"
+        status_code: 200,201,202
+        validate_certs: false
+        
+      
