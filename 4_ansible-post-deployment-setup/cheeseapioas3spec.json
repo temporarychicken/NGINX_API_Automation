@@ -1,123 +1,64 @@
 {
-    "openapi": "3.0.0",
-    "info": {
-        "title": "Cheese API",
-        "description": "An API to return details of world-famous cheeses.",
-        "version": "0.1.9"
-    },
-    "servers": [{
-            "url": "http://cheese.com/",
-            "description": "The legendary internet cheese server"
-        }, {
-            "url": "http://cheese-staging.ddns.net",
-            "description": "A staging environment dedicated to testing new API versions."
+        "openapi": "3.0.0",
+        "info": {
+          "version": "v1",
+          "title": "Cheese API"
+        },
+        "paths": {
+          "/cheddar": {
+            "x-controller-match-method": "EXACT",
+            "get": {
+              "description": "Returns an individual cheese profile.",
+              "responses": {
+                "200": {
+                  "description": "Returns the profile of a famous cheese"
+                }
+              }
+            }
+          },
+          "/emmental": {
+            "x-controller-match-method": "EXACT",
+            "get": {
+              "description": "Returns an individual cheese profile.",
+              "responses": {
+                "200": {
+                  "description": "Returns the profile of a famous cheese"
+                }
+              }
+            }
+          },
+          "/beemster": {
+            "x-controller-match-method": "EXACT",
+            "get": {
+              "description": "Returns an individual cheese profile.",
+              "responses": {
+                "200": {
+                  "description": "Returns the profile of a famous cheese"
+                }
+              }
+            }
+          },
+          "/gouda": {
+            "x-controller-match-method": "EXACT",
+            "get": {
+              "description": "Returns an individual cheese profile.",
+              "responses": {
+                "200": {
+                  "description": "Returns the profile of a famous cheese"
+                }
+              }
+            }
+          },
+          "/wensleydale": {
+            "x-controller-match-method": "EXACT",
+            "get": {
+              "description": "Returns an individual cheese profile.",
+              "responses": {
+                "200": {
+                  "description": "Returns the profile of a famous cheese"
+                }
+              }
+            }
+          }
         }
-    ],
-    "paths": {
-        "/cheddar": {
-            "get": {
-                "summary": "Returns an individual cheese profile.",
-                "description": "Optional extended description in CommonMark or HTML.",
-                "responses": {
-                    "200": {
-                        "description": "Returns the profile of a famous cheese",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/emmental": {
-            "get": {
-                "summary": "Returns an individual cheese profile.",
-                "description": "Optional extended description in CommonMark or HTML.",
-                "responses": {
-                    "200": {
-                        "description": "Returns the profile of a famous cheese",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/beemster": {
-            "get": {
-                "summary": "Returns an individual cheese profile.",
-                "description": "Optional extended description in CommonMark or HTML.",
-                "responses": {
-                    "200": {
-                        "description": "Returns the profile of a famous cheese",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/gouda": {
-            "get": {
-                "summary": "Returns an individual cheese profile.",
-                "description": "Optional extended description in CommonMark or HTML.",
-                "responses": {
-                    "200": {
-                        "description": "Returns the profile of a famous cheese",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/wensleydale": {
-            "get": {
-                "summary": "Returns an individual cheese profile.",
-                "description": "Optional extended description in CommonMark or HTML.",
-                "responses": {
-                    "200": {
-                        "description": "Returns the profile of a famous cheese",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+      }

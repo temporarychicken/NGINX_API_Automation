@@ -213,17 +213,19 @@
 
     - name: Upsert Cheese API in OAS3 Spec format
       uri:
-        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/api-definitions/cheesevtwo/oas-config
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/api-definitions/cheesevtwo/versions/v1
         method: PUT
         headers:
           Cookie: "{{ session.set_cookie }}"
         body_format: json
         body:
           metadata:
-            name: cheesevtwo
+            name: v1
             displayName: Cheese API
+            description: An API to return details of world-famous cheeses.
           desiredState:
-            spec: "{{ lookup('file','cheeseapioas3spec.json') }}"
+            specs:
+              REST: "{{ lookup('file','cheeseapioas3spec.json') }}"
         status_code: 200,201,409
         validate_certs: false
 
@@ -236,6 +238,8 @@
         body_format: json
         body:
          desiredState:
+           apiDefinitionVersionRef:
+             ref: "/services/api-definitions/cheesevtwo/versions/v1"
            apiDefinitionRef:
              ref: "/services/api-definitions/cheesevtwo"
              links:

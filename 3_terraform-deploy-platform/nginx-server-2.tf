@@ -28,8 +28,8 @@ resource "null_resource" "gateway-2-join-controller" {
   }
   
         inline = [
-		"until sudo apt-get update -y; do sleep 10; done",
-		"until sudo apt-get upgrade -y; do sleep 10; done",
+		"#until sudo apt-get update -y; do sleep 10; done",
+		"#until sudo apt-get upgrade -y; do sleep 10; done",
 		"sudo sh -c 'echo -n ${ data.local_file.foo.content } >>/etc/hosts'",
 		"sudo sh -c 'echo \" controller.nginxdemo.net\" >>/etc/hosts'",
 		"ansible-playbook connect_nginx_server_to_controller.yaml",

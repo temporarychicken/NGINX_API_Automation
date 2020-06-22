@@ -168,9 +168,10 @@
 		"chmod +r /tmp/sshkey",
 		"echo 'Downloading the Controller installer tarball....'",
 		"#wget -q https://sll-nginx-workshop-demo-eu-west-1.s3-eu-west-1.amazonaws.com/app_centric_automation/controller-installer-3.3.0.tar.gz",
-		"wget -q https://emea-terraform-and-packer.s3.eu-west-2.amazonaws.com/controller-installer-3.4.0.tar.gz",
-		"tar -xvf controller-installer-3.4.0.tar.gz",
-		"rm controller-installer-3.4.0.tar.gz"
+		"#wget -q https://emea-terraform-and-packer.s3.eu-west-2.amazonaws.com/controller-installer-3.4.0.tar.gz",
+		"wget -q https://emea-terraform-and-packer.s3.eu-west-2.amazonaws.com/controller-installer-3.5.0.tar.gz",
+		"tar -xvf controller-installer-3.5.0.tar.gz",
+		"rm controller-installer-3.5.0.tar.gz"
       ],
       "only": [
         "nginx-controller"
