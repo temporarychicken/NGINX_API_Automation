@@ -1,4 +1,4 @@
-resource "aws_vpc" "main" {
+resource "aws_vpc" "workshop0001-main" {
   cidr_block = "10.0.0.0/16"
 
   tags = {
@@ -6,8 +6,8 @@ resource "aws_vpc" "main" {
   }
 }
 
-resource "aws_subnet" "main" {
-  vpc_id     = aws_vpc.main.id
+resource "aws_subnet" "workshop0001-main" {
+  vpc_id     = aws_vpc.workshop0001-main.id
   cidr_block = "10.0.1.0/24"
   map_public_ip_on_launch = true
 
@@ -16,31 +16,31 @@ resource "aws_subnet" "main" {
   }
 }
 
-resource "aws_internet_gateway" "gw" {
-  vpc_id = aws_vpc.main.id
+resource "aws_internet_gateway" "workshop0001-gw" {
+  vpc_id = aws_vpc.workshop0001-main.id
 
   tags = {
     Name = "ControllerDemo"
   }
 }
 
-resource "aws_main_route_table_association" "a" {
-  vpc_id         = aws_vpc.main.id
-  route_table_id = aws_route_table.rt.id
+resource "aws_main_route_table_association" "workshop0001-a" {
+  vpc_id         = aws_vpc.workshop0001-main.id
+  route_table_id = aws_route_table.workshop0001-rt.id
 }
 
 
-resource "aws_route_table" "rt" {
-  vpc_id = aws_vpc.main.id
+resource "aws_route_table" "workshop0001-rt" {
+  vpc_id = aws_vpc.workshop0001-main.id
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.gw.id
+    gateway_id = aws_internet_gateway.workshop0001-gw.id
   }
 
 
   tags = {
-    Name = "ControllerDemo"
+    Name = "workshop0001-ControllerDemo"
   }
 }
 

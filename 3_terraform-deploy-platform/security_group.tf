@@ -1,7 +1,7 @@
-resource "aws_security_group" "nginx-web-facing" {
+resource "aws_security_group" "workshop0001-nginx-web-facing" {
   name        = "nginx-web-facing"
   description = "Allow TLS,HTTP,SSH inbound traffic"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = aws_vpc.workshop0001-main.id
 
   ingress {
     description = "HTTPS"
@@ -54,6 +54,6 @@ resource "aws_security_group" "nginx-web-facing" {
 
 
   tags = {
-    Name = "ControllerDemo"
+    Name = "workshop0001-ControllerDemo"
   }
 }

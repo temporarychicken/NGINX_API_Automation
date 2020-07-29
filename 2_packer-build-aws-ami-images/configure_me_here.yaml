@@ -1,6 +1,6 @@
 # Please Configure the following variable to suit your NoIP account configuration.
 
-fqdn: "controller.nginxdemo.net"
+fqdn: "controller.workshop0001.nginxdemo.net"
 
 # The following variables may also be changed to suit your preferred Controller login credentials.
 

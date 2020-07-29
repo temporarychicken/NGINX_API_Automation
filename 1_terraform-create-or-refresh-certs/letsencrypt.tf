@@ -13,7 +13,7 @@ resource "acme_registration" "reg" {
 
 resource "acme_certificate" "certificate" {
   account_key_pem           = acme_registration.reg.account_key_pem
-  common_name               = "*.nginxdemo.net"
+  common_name               = "*.workshop0001.nginxdemo.net"
  
   dns_challenge {
     provider = "route53"
@@ -22,15 +22,15 @@ resource "acme_certificate" "certificate" {
 
 resource "local_file" "crt" {
     content     = acme_certificate.certificate.certificate_pem
-    filename = "../certs/nginxdemo.net.crt.pem"
+    filename = "../certs/workshop0001.nginxdemo.net.crt.pem"
 }
 
 resource "local_file" "key" {
     content     = acme_certificate.certificate.private_key_pem
-    filename = "../certs/nginxdemo.net.key.pem"
+    filename = "../certs/workshop0001.nginxdemo.net.key.pem"
 }
 
 resource "local_file" "issuer" {
     content     = acme_certificate.certificate.issuer_pem
-    filename = "../certs/nginxdemo.net.issuer.pem"
+    filename = "../certs/workshop0001.nginxdemo.net.issuer.pem"
 }

@@ -9,8 +9,8 @@
   "builders": [
     {
       "type": "amazon-ebs",
-      "name": "ngx-plus",
-      "ami_name": "nginx-plus {{isotime \"2006-01-02\"}}{{uuid}}",
+      "name": "workshop0001-ngx-plus",
+      "ami_name": "workshop0001-nginx-plus {{isotime \"2006-01-02\"}} {{uuid}}",
       "instance_type": "t2.micro",
       "region": "{{user `region`}}",
       "source_ami": "ami-006a0174c6c25ac06",
@@ -18,7 +18,7 @@
       "access_key": "{{user `aws_access_key`}}",
       "secret_key": "{{user `aws_secret_key`}}",
       "tags": {
-        "Name": "ngx-plus"
+        "Name": "workshop0001-ngx-plus"
       }
     }
   ],
@@ -28,7 +28,7 @@
       "source": "{{user `home`}}/.ssh/ngx-certs",
       "destination": "~/.ssh/ngx-certs",
       "only": [
-        "ngx-plus"
+        "workshop0001-ngx-plus"
       ]
     },
     {
@@ -36,7 +36,7 @@
       "source": "connect_nginx_server_to_controller.yaml",
       "destination": "connect_nginx_server_to_controller.yaml",
       "only": [
-        "ngx-plus"
+        "workshop0001-ngx-plus"
       ]
     },
     {
@@ -44,7 +44,7 @@
       "source": "configure_me_here.yaml",
       "destination": "configure_me_here.yaml",
       "only": [
-        "ngx-plus"
+        "workshop0001-ngx-plus"
       ]
     },
     {
@@ -59,7 +59,7 @@
 		"chmod +r /tmp/sshkey"
       ],
       "only": [
-        "ngx-plus"
+        "workshop0001-ngx-plus"
       ]
     },
    {
@@ -68,7 +68,7 @@
       "source": "/tmp/sshkey.pub",
 	  "direction" : "download",
       "only": [
-        "ngx-plus"
+        "workshop0001-ngx-plus"
       ]
     },
    {
@@ -77,7 +77,7 @@
       "source": "/tmp/sshkey",
 	  "direction" : "download",
       "only": [
-        "ngx-plus"
+        "workshop0001-ngx-plus"
       ]
     },		
     {
@@ -85,7 +85,7 @@
       "galaxy_file": "requirements.yml",
       "playbook_file": "playbook-lb.yml",
       "only": [
-        "ngx-plus"
+        "workshop0001-ngx-plus"
       ]
     },
 	
@@ -98,7 +98,7 @@
 	    "#sudo apt upgrade -y"
       ],
       "only": [
-        "ngx-plus"
+        "workshop0001-ngx-plus"
       ]
     },	
 	
@@ -108,14 +108,14 @@
       "type": "shell",
       "script": "setup-instance.sh",
       "only": [
-        "ngx-plus"
+        "workshop0001-ngx-plus"
       ]
     },
     {
       "type": "shell",
       "script": "setup_cheese_endpoint.sh",
       "only": [
-        "ngx-plus"
+        "workshop0001-ngx-plus"
       ]
     }
 	

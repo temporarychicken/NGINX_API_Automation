@@ -18,14 +18,26 @@
         nginx_controller_public_ip: "{{ ipify_public_ip }}" 
 
 
-    - name: Update Controller AWS DNS record
 #      uri:
+
+#    - name: Add Zone to Controller AWS DNS record
+
+# Add new zone workshop0001.nginxdemo.net to the nginxdemo.net domain
+
+#      route-53:
+#          state: present
+#          zone: nginxdemo.net
+#          wait: yes
+
+
+
+    - name: Update Controller AWS DNS record
 
 # Add new.foo.com as an A record with 3 IPs and wait until the changes have been replicated
       route53:
           state: present
           zone: nginxdemo.net
-          record: controller.nginxdemo.net
+          record: controller.workshop0001.nginxdemo.net
           type: A
           ttl: 7200
           overwrite: true

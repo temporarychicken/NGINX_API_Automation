@@ -13,62 +13,62 @@ data "aws_route53_zone" "selected" {
 }
 
 
-resource "aws_route53_record" "gateway1" {
+resource "aws_route53_record" "workshop0001-gateway1" {
   zone_id = data.aws_route53_zone.selected.zone_id
-  name    = "gateway1.${data.aws_route53_zone.selected.name}"
+  name    = "gateway1.workshop0001.${data.aws_route53_zone.selected.name}"
   type    = "A"
   ttl     = "60"
 # records = ["${chomp(http.myip.body)}"]
-  records = [ aws_instance.nginx-plus-gateway-1.public_ip ]
+  records = [ aws_instance.workshop0001-nginx-plus-gateway-1.public_ip ]
 
 }
 
 
-resource "aws_route53_record" "gateway2" {
+resource "aws_route53_record" "workshop0001-gateway2" {
   zone_id = data.aws_route53_zone.selected.zone_id
-  name    = "gateway2.${data.aws_route53_zone.selected.name}"
+  name    = "gateway2.workshop0001.${data.aws_route53_zone.selected.name}"
   type    = "A"
   ttl     = "60"
-  records = [ aws_instance.nginx-plus-gateway-2.public_ip ]
+  records = [ aws_instance.workshop0001-nginx-plus-gateway-2.public_ip ]
 
 }
 
-resource "aws_route53_record" "controller" {
+resource "aws_route53_record" "workshop0001-controller" {
   zone_id = data.aws_route53_zone.selected.zone_id
-  name    = "controller.${data.aws_route53_zone.selected.name}"
+  name    = "controller.workshop0001.${data.aws_route53_zone.selected.name}"
   type    = "A"
   ttl     = "60"
-  records = [ aws_instance.nginx-controller.public_ip ]
+  records = [ aws_instance.workshop0001-nginx-controller.public_ip ]
 
 }
 
-resource "aws_route53_record" "api-backend" {
+resource "aws_route53_record" "workshop0001-api-backend" {
   zone_id = data.aws_route53_zone.selected.zone_id
-  name    = "apibackend.${data.aws_route53_zone.selected.name}"
+  name    = "apibackend.workshop0001.${data.aws_route53_zone.selected.name}"
   type    = "A"
   ttl     = "60"
-  records = [ aws_instance.api-backend.public_ip ]
+  records = [ aws_instance.workshop0001-api-backend.public_ip ]
 
 }
 
 
-resource "aws_route53_record" "cheese-staging" {
+resource "aws_route53_record" "workshop0001-cheese-staging" {
   zone_id = data.aws_route53_zone.selected.zone_id
-  name    = "cheese-staging.${data.aws_route53_zone.selected.name}"
+  name    = "cheese-staging.workshop0001.${data.aws_route53_zone.selected.name}"
   type    = "A"
   ttl     = "60"
 # records = ["${chomp(http.myip.body)}"]
-  records = [ aws_instance.nginx-plus-gateway-1.public_ip ]
+  records = [ aws_instance.workshop0001-nginx-plus-gateway-1.public_ip ]
 
 }
 
 
-resource "aws_route53_record" "cheese-production" {
+resource "aws_route53_record" "workshop0001-cheese-production" {
   zone_id = data.aws_route53_zone.selected.zone_id
-  name    = "cheese.${data.aws_route53_zone.selected.name}"
+  name    = "cheese.workshop0001.${data.aws_route53_zone.selected.name}"
   type    = "A"
   ttl     = "60"
-  records = [ aws_instance.nginx-plus-gateway-2.public_ip ]
+  records = [ aws_instance.workshop0001-nginx-plus-gateway-2.public_ip ]
 
 }
 

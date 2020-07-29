@@ -1,7 +1,7 @@
 # Please insert your username and password for NoIP.com in the line below, and also any domain name you have reserved there that you would like to use (mandatory). Also change any controller login parameters you wish to (optional)
 
 
-export NOIP_HOSTNAME=nginxdemo.net
+export NOIP_HOSTNAME=workshop0001.nginxdemo.net
 export NOIP_SUBNAME=controller
 export NOIP_USERNAME=davidluke
 export NOIP_PASSWORD=xxxxxxx

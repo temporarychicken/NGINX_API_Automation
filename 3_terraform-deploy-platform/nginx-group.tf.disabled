@@ -23,7 +23,7 @@ resource "aws_instance" "nginx-plus-generic" {
         inline = [
 		"sudo hostnamectl set-hostname nginxplus${count.index}",
 		"sudo sh -c 'echo -n ${ data.local_file.foo.content } >>/etc/hosts'",
-		"sudo sh -c 'echo \" controller.nginxdemo.net\" >>/etc/hosts'",
+		"sudo sh -c 'echo \" controller.workshop0001.nginxdemo.net\" >>/etc/hosts'",
 		"ansible-playbook connect_nginx_server_to_controller.yaml",
 
     ]

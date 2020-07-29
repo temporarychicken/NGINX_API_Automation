@@ -5,15 +5,15 @@
 # Copyright (C) Nginx, Inc.
 #
 
-controller_fqdn="controller.nginxdemo.net"
-packages_url="https://controller.nginxdemo.net/packages-repository/"
+controller_fqdn="controller.workshop0001.nginxdemo.net"
+packages_url="https://controller.workshop0001.nginxdemo.net/packages-repository/"
 package_name="nginx-controller-agent"
-public_key_url="https://controller.nginxdemo.net/packages-repository/nginx-signing.key"
+public_key_url="https://controller.workshop0001.nginxdemo.net/packages-repository/nginx-signing.key"
 agent_conf_path="/etc/controller-agent"
 agent_conf_file="${agent_conf_path}/agent.controller.conf"
 agent_service_conf_file="${agent_conf_path}/agent.conf"
 agent_extension_conf_file="${agent_conf_path}/agent.configurator.conf"
-API_URL="${API_URL:-"https://controller.nginxdemo.net:8443"}"
+API_URL="${API_URL:-"https://controller.workshop0001.nginxdemo.net:8443"}"
 VERIFY_CERT="True"
 api_ping_url="${API_URL}/ping/"
 api_receiver_url="${API_URL}/1.4"

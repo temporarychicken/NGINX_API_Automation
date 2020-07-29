@@ -7,7 +7,7 @@
 
     controller_auth_user: "a.user@f5.com"
     controller_auth_password: "Password1"
-    controller_domain_name: "controller.nginxdemo.net"
+    controller_domain_name: "controller.workshop0001.nginxdemo.net"
     controller_api_version: "v1"
 
     controller_user_request_body:
@@ -180,13 +180,13 @@
           desiredState:
             ingress:
               uris:
-                https://cheese-staging.nginxdemo.net: {}
+                https://cheese-staging.workshop0001.nginxdemo.net: {}
               placement:
                 instanceRefs:
                 - ref: "/infrastructure/locations/unspecified/instances/{{gateway1_instance_id}}"
               tls:
                 certRef:
-                  ref: "/services/environments/staging/certs/nginxdemo.net"
+                  ref: "/services/environments/staging/certs/workshop0001.nginxdemo.net"
                 preferServerCipher: DISABLED
                 sessionCache: 'OFF'
         status_code: 201,202,409

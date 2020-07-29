@@ -1,22 +1,22 @@
 # Fetch AWS NGINX Plus AMI identifiers
-data "aws_ami" "ngx_plus" {
+data "aws_ami" "workshop0001-ngx-plus" {
   most_recent = true
   owners      = ["self"]
   filter {
     name = "tag:Name"
     values = [
-      "ngx-plus",
+      "workshop0001-ngx-plus",
     ]
   }
 }
 # Fetch AWS NGINX Controller AMI identifiers
-data "aws_ami" "ngx_controller" {
+data "aws_ami" "workshop0001-nginx-controller" {
   most_recent = true
   owners      = ["self"]
   filter {
     name = "tag:Name"
     values = [
-      "nginx-controller",
+      "workshop0001-nginx-controller",
     ]
   }
 }

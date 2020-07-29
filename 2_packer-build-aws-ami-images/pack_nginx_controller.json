@@ -23,8 +23,8 @@
 	  "subnet_id" : "subnet-0d35b7b8259807908",
 	  
 	  
-      "name": "nginx-controller",
-      "ami_name": "nginx-controller-full-install {{timestamp}}",
+      "name": "workshop0001-nginx-controller",
+      "ami_name": "workshop0001-nginx-controller-full-install {{timestamp}}",
       "instance_type": "t2.2xlarge",
       "region": "{{user `region`}}",
       "source_ami": "ami-006a0174c6c25ac06",
@@ -45,7 +45,7 @@
 	  
 	  
       "tags": {
-        "Name": "nginx-controller"
+        "Name": "workshop0001-nginx-controller"
       }
     }
   ],
@@ -55,7 +55,7 @@
       "source": "{{user `home`}}/.ssh/ngx-certs",
       "destination": "~/.ssh/ngx-certs",
       "only": [
-        "nginx-controller"
+        "workshop0001-nginx-controller"
       ]
     },
     {
@@ -63,32 +63,32 @@
       "source": "install-controller.sh",
       "destination": "~/install-controller.sh",
       "only": [
-        "nginx-controller"
+        "workshop0001-nginx-controller"
       ]
     },
 
     {
       "type": "file",
-      "source": "../certs/nginxdemo.net.crt.pem",
+      "source": "../certs/workshop0001.nginxdemo.net.crt.pem",
       "destination": "controller.crt",
       "only": [
-        "nginx-controller"
+        "workshop0001-nginx-controller"
       ]
     },
     {
       "type": "file",
-      "source": "../certs/nginxdemo.net.key.pem",
+      "source": "../certs/workshop0001.nginxdemo.net.key.pem",
       "destination": "controller.key",
       "only": [
-        "nginx-controller"
+        "workshop0001-nginx-controller"
       ]
     },
     {
       "type": "file",
-      "source": "../certs/nginxdemo.net.issuer.pem",
+      "source": "../certs/workshop0001.nginxdemo.net.issuer.pem",
       "destination": "issuer.pem",
       "only": [
-        "nginx-controller"
+        "workshop0001-nginx-controller"
       ]
     },
 
@@ -97,7 +97,7 @@
       "source": "nginx_controller_deploy_license.yaml",
       "destination": "~/nginx_controller_deploy_license.yaml",
       "only": [
-        "nginx-controller"
+        "workshop0001-nginx-controller"
       ]
     },
     {
@@ -105,7 +105,7 @@
       "source": "license.txt",
       "destination": "license.txt",
       "only": [
-        "nginx-controller"
+        "workshop0001-nginx-controller"
       ]
     },
     {
@@ -113,7 +113,7 @@
       "source": "configure_me_here.yaml",
       "destination": "configure_me_here.yaml",
       "only": [
-        "nginx-controller"
+        "workshop0001-nginx-controller"
       ]
     },
    {
@@ -126,7 +126,7 @@
 
       ],
       "only": [
-        "nginx-controller"
+        "workshop0001-nginx-controller"
       ]
     },
     {
@@ -135,7 +135,7 @@
       "destination": "../3_terraform-deploy-platform/private_ip.txt",
 	  "direction" : "download",
       "only": [
-        "nginx-controller"
+        "workshop0001-nginx-controller"
       ]
     },
 	
@@ -157,7 +157,7 @@
 		"#sudo -i snap install jq"
       ],
       "only": [
-        "nginx-controller"
+        "workshop0001-nginx-controller"
       ]
     },	
 	
@@ -175,7 +175,7 @@
 		"rm controller-installer-latest.tar.gz"
       ],
       "only": [
-        "nginx-controller"
+        "workshop0001-nginx-controller"
       ]
     },
 	
@@ -186,7 +186,7 @@
       "source": "update_DNS_record_at_AWS_for_controller_cert.yaml",
       "destination": "update_DNS_record_at_AWS_for_controller_cert.yaml",
       "only": [
-        "nginx-controller"
+        "workshop0001-nginx-controller"
       ]
     },
 
@@ -196,7 +196,7 @@
       "source": "remove_DNS_record_at_AWS.yaml",
       "destination": "remove_DNS_record_at_AWS.yaml",
       "only": [
-        "nginx-controller"
+        "workshop0001-nginx-controller"
       ]
     },
 
@@ -215,7 +215,7 @@
 		"ansible-playbook -vvv update_DNS_record_at_AWS_for_controller_cert.yaml"
       ],
       "only": [
-        "nginx-controller"
+        "workshop0001-nginx-controller"
       ]
     },	
 
@@ -228,7 +228,7 @@
 		"sh ./install-controller.sh"
       ],
       "only": [
-        "nginx-controller"
+        "workshop0001-nginx-controller"
       ]
     },		
 	
@@ -246,7 +246,7 @@
 		"ansible-playbook -vvv remove_DNS_record_at_AWS.yaml"
       ],
       "only": [
-        "nginx-controller"
+        "workshop0001-nginx-controller"
       ]
     },	
 	
@@ -256,7 +256,7 @@
       "source": "/tmp/sshkey.pub",
 	  "direction" : "download",
       "only": [
-        "nginx-controller"
+        "workshop0001-nginx-controller"
       ]
     },
    {
@@ -265,7 +265,7 @@
       "source": "/tmp/sshkey",
 	  "direction" : "download",
       "only": [
-        "nginx-controller"
+        "workshop0001-nginx-controller"
       ]
     }
   ]
