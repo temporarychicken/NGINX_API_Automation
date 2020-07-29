@@ -221,7 +221,7 @@
         body:
           metadata:
             name: v1
-            displayName: Cheese API 🧀
+            displayName: Cheese API
             description: An API to return details of world-famous cheeses.
           desiredState:
             specs:
@@ -399,13 +399,6 @@
                 keyLocation: HEADER
                 key: apikey
               interceptWorkloadErrors: DISABLED
-              
-              rateLimits:
-                cheeseLimit:
-                  key: $http_x_real_ip-$request_uri    # Default $binary_remote_addr, can be any NGINX variable
-                  rate: 1r/s
-                  statusCode: 429
-
 
             ingress:
               gatewayRefs:
