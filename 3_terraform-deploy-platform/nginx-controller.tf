@@ -5,7 +5,7 @@ data "local_file" "foo" {
 resource "aws_instance" "workshop0001-nginx-controller" {
   ami                         = data.aws_ami.workshop0001-nginx-controller.id # eu-west-2
   instance_type               = "c5.2xlarge"
-  key_name                    = "controller-key"
+  key_name                    = "workshop0001-controller-key"
   security_groups             = [aws_security_group.workshop0001-nginx-web-facing.id]
   subnet_id                   = aws_subnet.workshop0001-main.id
   private_ip                  = data.local_file.foo.content

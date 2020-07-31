@@ -1,7 +1,7 @@
 resource "aws_instance" "workshop0001-nginx-plus-gateway-1" {
   ami                         = data.aws_ami.workshop0001-ngx-plus.id # eu-west-2
   instance_type               = "t2.medium"
-  key_name                    = "nginx-server-key"
+  key_name                    = "workshop0001-nginx-server-key"
   security_groups             = [aws_security_group.workshop0001-nginx-web-facing.id]
   subnet_id                   = aws_subnet.workshop0001-main.id
   private_ip                  = "10.0.1.20"
