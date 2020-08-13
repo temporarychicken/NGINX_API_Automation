@@ -22,7 +22,7 @@ resource "null_resource" "gateway-2-join-controller" {
   
     connection {
     type     = "ssh"
-    user     = "ubuntu"
+    user     = "centos"
 	private_key = file("~/.ssh/nginx-server-key.pem")
     host     = aws_instance.workshop0001-nginx-plus-gateway-2.public_ip
   }

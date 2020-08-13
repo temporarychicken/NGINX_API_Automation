@@ -23,7 +23,7 @@ resource "null_resource" "api-backend-join-controller" {
   
     connection {
     type     = "ssh"
-    user     = "ubuntu"
+    user     = "centos"
 	private_key = file("~/.ssh/nginx-server-key.pem")
     host     = aws_instance.workshop0001-api-backend.public_ip
   }

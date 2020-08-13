@@ -1,0 +1,130 @@
+{
+  "description": "Create an NGINX Plus and two NGINX Open Source Images",
+  "variables": {
+    "home": "{{env `HOME`}}",
+    "aws_access_key": "",
+    "aws_secret_key": "",
+    "region": "eu-west-2"
+  },
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "name": "workshop0001-ngx-plus",
+      "ami_name": "workshop0001-nginx-plus {{isotime \"2006-01-02\"}} {{uuid}}",
+      "instance_type": "t2.micro",
+      "region": "{{user `region`}}",
+      "source_ami": "ami-0aa3620fadad9198e",
+      "ssh_username": "centos",
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+      "tags": {
+        "Name": "workshop0001-ngx-plus"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "{{user `home`}}/.ssh/ngx-certs",
+      "destination": "~/.ssh/ngx-certs",
+      "only": [
+        "workshop0001-ngx-plus"
+      ]
+    },
+    {
+      "type": "file",
+      "source": "connect_nginx_server_to_controller.yaml",
+      "destination": "connect_nginx_server_to_controller.yaml",
+      "only": [
+        "workshop0001-ngx-plus"
+      ]
+    },
+    {
+      "type": "file",
+      "source": "configure_me_here.yaml",
+      "destination": "configure_me_here.yaml",
+      "only": [
+        "workshop0001-ngx-plus"
+      ]
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "#sudo -H apt-get update -y",
+	"#sudo -H apt-get upgrade -y",
+        "#sudo -H apt-get update -y",
+        "#sudo -H apt-get install -y python-pip",
+        "#sudo -H pip install ansible",
+	"#sudo yum install python3 -y",
+	"#sudo yum install python3-pip -y",
+	"#pip3 install ansible --user",
+	"sudo yum install epel-release -y",
+	"sudo yum install ansible -y",
+        "sudo yum install python2 -y",
+	"sudo sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux",
+	"ssh-keygen -f /tmp/sshkey -q -N ''",
+		"chmod +r /tmp/sshkey"
+      ],
+      "only": [
+        "workshop0001-ngx-plus"
+      ]
+    },
+   {
+      "type": "file",
+      "destination": "{{user `home`}}/.ssh/nginx-server-key.pub",
+      "source": "/tmp/sshkey.pub",
+	  "direction" : "download",
+      "only": [
+        "workshop0001-ngx-plus"
+      ]
+    },
+   {
+      "type": "file",
+      "destination": "{{user `home`}}/.ssh/nginx-server-key.pem",
+      "source": "/tmp/sshkey",
+	  "direction" : "download",
+      "only": [
+        "workshop0001-ngx-plus"
+      ]
+    },		
+    {
+      "type": "ansible-local",
+      "galaxy_file": "requirements.yml",
+      "playbook_file": "playbook-lb.yml",
+      "only": [
+        "workshop0001-ngx-plus"
+      ]
+    },
+	
+    {
+      "type": "shell",
+      "inline": [
+        "#sudo -H apt update -y",
+        "#sudo -H apt update -y",
+        "sudo yum install nginx-plus-module-njs -y",
+	"#sudo apt upgrade -y"
+      ],
+      "only": [
+        "workshop0001-ngx-plus"
+      ]
+    },	
+	
+		
+	
+    {
+      "type": "shell",
+      "script": "setup-instance.sh",
+      "only": [
+        "workshop0001-ngx-plus"
+      ]
+    },
+    {
+      "type": "shell",
+      "script": "setup_cheese_endpoint.sh",
+      "only": [
+        "workshop0001-ngx-plus"
+      ]
+    }
+	
+  ]
+}
