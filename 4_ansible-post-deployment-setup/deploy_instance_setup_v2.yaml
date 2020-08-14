@@ -391,8 +391,7 @@
                       isDrain: false
             ingress:
               uris:
-                "/":
-                  matchMethod: PREFIX
+
                 "/beemster":
                   matchMethod: EXACT
                 "/cheddar":
@@ -488,11 +487,45 @@
             - ref: "/services/environments/staging/apps/cheesevtwo/published-apis/cheesevtwo"
             devPortalType: private
 
+        status_code: 200,201,202
+        validate_certs: false
 
 
-
+    - name: Create an App component to host the Developer Portal
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/staging/apps/cheesevtwo/components/cheeseapplicationcomponent
+        method: PUT
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body:          
+          metadata:
+            name: cheeseapplicationcomponent
+            displayName: Cheese Application Component Nested into app
+            description: Cheese Application Component Nested into app!!!
+            tags: []
+          desiredState:
+            ingress:
+              gatewayRefs:
+              - ref: "/services/environments/staging/gateways/cheesevtwogateway"
+              uris:
+                "/": {}
+              tls:
+                certRef:
+                  ref: "/services/environments/staging/certs/workshop0001.nginxdemo.net"
+                preferServerCipher: DISABLED
+                sessionCache: 'OFF'
+            backend:
+              ntlmAuthentication: DISABLED
+              preserveHostHeader: DISABLED
+            logging:
+              errorLog: DISABLED
+              accessLog:
+                state: DISABLED
+            security: {}
 
 
         status_code: 200,201,202
         validate_certs: false
+
       
