@@ -422,6 +422,10 @@
                   key: "$http_x_real_ip-$request_uri"
                   rate: 1r/s
                   statusCode: 429
+            programmability:
+              uriRewrites:
+              - incomingPattern: "^/api/v1(.*)$"
+                rewritePattern: "$1"
 
 
         status_code: 200,201,202
