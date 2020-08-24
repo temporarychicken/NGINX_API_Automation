@@ -160,7 +160,18 @@
         headers:
           Cookie: "{{ session.set_cookie }}"
         body_format: json
-        body: "{{ lookup('file','staging-cert.json') }}"
+        body:
+          metadata:
+            name: workshop0001.nginxdemo.net
+            displayName: workshop0001.nginxdemo.net Wildcard Certificate
+            description: All domains residing in *.workshop0001.nginxdemo.net
+          desiredState:
+            type: PEM
+            privateKey: "{{ lookup('file','~/NGINX_API_Automation/certs/workshop0001.nginxdemo.net.key.pem') }}"
+            publicCert: "{{ lookup('file','~/NGINX_API_Automation/certs/workshop0001.nginxdemo.net.crt.pem') }}"
+            password: ''
+            caCerts:
+            - "{{ lookup('file','~/NGINX_API_Automation/certs/workshop0001.nginxdemo.net.issuer.pem') }}"
         status_code: 201,409
         validate_certs: false
 
