@@ -265,7 +265,7 @@
 
     - name: Create a new Security Group for JWT
       uri:
-        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/security/identity-providers/cheese-security-group
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/security/identity-providers/cheese-jwt-security
         method: PUT
         headers:
           Cookie: "{{ session.set_cookie }}"
@@ -293,7 +293,7 @@
         
     - name: Create a new Security Group for API key
       uri:
-        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/security/identity-providers/cheese-apikey-security-group
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/security/identity-providers/cheese-apikey
         method: PUT
         headers:
           Cookie: "{{ session.set_cookie }}"
@@ -314,7 +314,7 @@
         
     - name: Create a new User Felix for API key security group
       uri:
-        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/security/identity-providers/cheese-apikey-security-group/clients/felix
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/security/identity-providers/cheese-apikey/clients/felix
         method: PUT
         headers:
           Cookie: "{{ session.set_cookie }}"
@@ -341,7 +341,7 @@
         
     - name: Create a new User Brian for API key security group
       uri:
-        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/security/identity-providers/cheese-apikey-security-group/clients/brian
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/security/identity-providers/cheese-apikey/clients/brian
         method: PUT
         headers:
           Cookie: "{{ session.set_cookie }}"
@@ -426,7 +426,7 @@
                 key: apikey
                 keyLocation: HEADER
               identityProviderRefs:
-              - ref: "/services/identity-provider/cheese-apikey-security-group"
+              - ref: "/security/identity-providers/cheese-apikey"
               rateLimits:
                 policy_1:
                   key: "$http_x_real_ip-$request_uri"
