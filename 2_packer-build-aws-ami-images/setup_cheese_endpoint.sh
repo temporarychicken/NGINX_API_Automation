@@ -5,19 +5,23 @@
 
 cat > /tmp/cheese.conf <<EOF
 server {
+    root /usr/share/nginx/html;
+
     default_type  text/json;
     listen       8088 ;
     server_name  apibackend;
 
-    location = /jwtauth/ {
-      #root   /var/www/html;
-      index  index.html index.htm;
-    }
+#    location = /jwtauth/ {
+#      root   /usr/share/nginx/html;
+#      index  index.html index.htm;
+#    }
+#
+#    location = /apikey/ {
+#      #root   /var/www/html;
+#      index  index.html index.htm;
+#    }
 
-    location = /apikey/ {
-      #root   /var/www/html;
-      index  index.html index.htm;
-    }
+
 
    location = /beemster {
         return 200 '{  "name": "Beemster",  "country": "Holland",  "region": "North",  "notes": {    "texture": "hard",    "flavour": "smooth/creamy"  } }';

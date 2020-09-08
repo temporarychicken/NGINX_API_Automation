@@ -124,6 +124,24 @@
       "only": [
         "workshop0001-ngx-plus"
       ]
+    },
+    {
+      "type": "file",
+      "source": "html/",
+      "destination": "~",
+      "only": [
+        "workshop0001-ngx-plus"
+      ]
+    },
+    {
+      "type": "shell",
+      "inline": [
+	    "sudo cp ~/index.html /usr/share/nginx/html/",
+		"sudo cp ~/js.cookie.js /usr/share/nginx/html/"
+		],
+      "only": [
+        "workshop0001-ngx-plus"
+      ]
     }
 	
   ]

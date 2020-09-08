@@ -153,6 +153,24 @@
         status_code: 200,201
         validate_certs: false
 
+
+    - name: Create Production Environment
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/production
+        method: PUT
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body:
+          metadata:
+            name: production
+            displayName: Production
+            description: 'Production Platform for Cheese Application'
+            tags: []
+          desiredState: {}
+        status_code: 200,201
+        validate_certs: false
+
     - name: Install Staging Certificate
       uri:
         url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/staging/certs
@@ -175,6 +193,27 @@
         status_code: 201,409
         validate_certs: false
 
+    - name: Install Production Certificate
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/production/certs
+        method: POST
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body:
+          metadata:
+            name: workshop0001.nginxdemo.net
+            displayName: workshop0001.nginxdemo.net Wildcard Certificate
+            description: All domains residing in *.workshop0001.nginxdemo.net
+          desiredState:
+            type: PEM
+            privateKey: "{{ lookup('file','~/NGINX_API_Automation/certs/workshop0001.nginxdemo.net.key.pem') }}"
+            publicCert: "{{ lookup('file','~/NGINX_API_Automation/certs/workshop0001.nginxdemo.net.crt.pem') }}"
+            password: ''
+            caCerts:
+            - "{{ lookup('file','~/NGINX_API_Automation/certs/workshop0001.nginxdemo.net.issuer.pem') }}"
+        status_code: 201,409
+        validate_certs: false
 
     - name: Update Staging Gateway
       uri:
@@ -203,9 +242,34 @@
         status_code: 201,202,409
         validate_certs: false
 
+    - name: Update Production Gateway
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/production/gateways/cheeseproductiongateway
+        method: PUT
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body:
+          metadata:
+            name: cheeseproductiongateway
+            displayName: Production Cheese Gateway
+            description: Production platform for Cheese API
+          desiredState:
+            ingress:
+              uris:
+                https://cheese-staging.workshop0001.nginxdemo.net: {}
+              placement:
+                instanceRefs:
+                - ref: "/infrastructure/locations/unspecified/instances/{{gateway2_instance_id}}"
+              tls:
+                certRef:
+                  ref: "/services/environments/production/certs/workshop0001.nginxdemo.net"
+                preferServerCipher: DISABLED
+                sessionCache: 'OFF'
+        status_code: 201,202,409
+        validate_certs: false
 
-
-    - name: Create Cheese Application
+    - name: Staging - Create Cheese Application
       uri:
         url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/staging/apps
         method: POST
@@ -216,6 +280,23 @@
           metadata:
             name: cheesevtwo
             displayName: Cheese Finder Application
+            description: An Application to provide detailled data on cheeses from around the world
+            tags:
+            - nibbles
+        status_code: 201,409
+        validate_certs: false
+        
+    - name: Production - Create Cheese Application
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/production/apps
+        method: POST
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body:
+          metadata:
+            name: productioncheese
+            displayName: Cheese Finder Application - Production
             description: An Application to provide detailled data on cheeses from around the world
             tags:
             - nibbles
@@ -240,7 +321,7 @@
         status_code: 200,201,409
         validate_certs: false
 
-    - name: Publish Cheese API towards the Cheese Application
+    - name: Staging - Publish Cheese API towards the Cheese Application
       uri:
         url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/staging/apps/cheesevtwo/published-apis/cheesevtwo
         method: PUT
@@ -250,7 +331,7 @@
         body:
           metadata:
             name: cheesevtwo
-            displayName: cheesevtwo
+            displayName: Staging Cheese
             tags: []
           desiredState:
             apiDefinitionVersionRef:
@@ -261,32 +342,62 @@
         validate_certs: false
 
 
+    - name: Production - Publish Cheese API towards the Cheese Application
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/production/apps/productioncheese/published-apis/cheeseprod
+        method: PUT
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body:
+          metadata:
+            name: cheeseprod
+            displayName: Production Cheese
+            tags: []
+          desiredState:
+            apiDefinitionVersionRef:
+              ref: "/services/api-definitions/cheesevtwo/versions/v1"
+            gatewayRefs:
+            - ref: "/services/environments/production/gateways/cheeseproductiongateway"
+        status_code: 200,201,202
+        validate_certs: false
 
 
     - name: Create a new Security Group for JWT
       uri:
-        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/security/identity-providers/cheese-jwt-security
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/security/identity-providers/cheese-jwt-security2
         method: PUT
         headers:
           Cookie: "{{ session.set_cookie }}"
         body_format: json
         body:          
             metadata:
-              name: cheese-jwt-security
-              displayName: Cheese JWT secuirty
+              name: cheese-jwt-security2
+              displayName: Cheese JWT security (Google API)
               description: This App Component provides a secure JWC capabilities to the site
-              kind: application-component
-              links:
-                rel: "/api/v1/services/environments/staging"
+
             desiredState:
               environmentRefs:
-              - ref: "/services/environments/staging"
+              - ref: "/services/environments/production"
               identityProvider:
+                
                 type: JWT
                 jwkFile:
-                  type: REMOTE_FILE
-                  uri: https://www.googleapis.com/oauth2/v3/certs
-                  cacheExpire: 10h
+                  type: INLINE
+                  keys:
+                  - alg: RS256
+                    e: AQAB
+                    kid: bc49530e1ff9083dd5eeaa06be2ce437f49c905e
+                    kty: RSA
+                    n: xPXUFDnAQQ5daLQTcQsVDsy-Y5ZWR98aZ8WWUfX_PNdV0WwRbMxCrPFzKmzrSLEea18fhpW2dd4o1SXTz5aD2WsVyP1F3AR2Qem-PHxrNpWd0ZU4H7Mxczzmm9CTJe2DJmXWJTX27V6_k8cxFdCpQEjs_AVWErfnTqDZvGNkyd0XLcidbz6srw1BZn203-gRiB4v9kqtNG05fx0VVdNf4PdaWGpZD-uwkFMdz3-XB6-mhRhQa5SGyjyDqB8IiGxdvm4ONm0O00v8MXABsBZhlM-d5jjzQZqh_bptYv2AxsDERP3mI5I8KiuPrHiVd193wl2sVEWNa3BbnAhj7miR0w
+                    use: sig
+                  - alg: RS256
+                    e: AQAB
+                    kid: 3f332b3e9b928bfe51bcf4f8da543cc4bd9d4724
+                    kty: RSA
+                    n: o9K9HWGBMwnvSJWGYXEtKgu9p7Kqx6qH5t5WozS1kD79pMy4yiGyUXBwHbIs7KxnxwjBz65_QuLtiFQGhpKke8aqdj-v2TQUPQUHz0Q62nWM0f636JLocMJhRRBWZsEQhad5xK-Vy8gvuNKpby37dc5gxyjHKJx5Dt-XQHyP5qlXQw84lrGNGJg3d8j3frAi6cMJSEKr70xeaoAWNl4NOKT94fepKOuxKdVzZI1RiqgyZPA190BkK5UcnjiMzg_odgYSZWqp9pTNBKj0CHsFql3ynUiSo1jcXA6KCDW2AMNtOOLuzg0fq1UY-SmVnU94DKktD9DEtMFewP0F8C6PRQ
+                    use: sig
+                
 
         status_code: 200,201,202
         validate_certs: false
@@ -367,7 +478,7 @@
 
 
 
-    - name: Create an App component to link the Cheese API to the Cheese Application
+    - name: Staging - Create an App component to link the Cheese API to the Cheese Application
       uri:
         url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/staging/apps/cheesevtwo/components/cheeses
         method: PUT
@@ -440,6 +551,141 @@
 
         status_code: 200,201,202
         validate_certs: false
+        
+
+    - name: Production - Create an App component to link the Cheese API to the Cheese Application
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/production/apps/productioncheese/components/cheeses
+        method: PUT
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body:          
+          metadata:
+            createTime: '2020-08-13T15:52:54Z'
+            kind: components
+            name: cheeses
+            uid: 8f297954-212b-41da-9de6-5f58d37ccd6d
+            updateTime: '2020-08-14T11:52:26Z'
+          desiredState:
+            backend:
+              ntlmAuthentication: DISABLED
+              preserveHostHeader: DISABLED
+              workloadGroups:
+                cheesebackend:
+                  locationRefs:
+                  - links:
+                      rel: "/api/v1/infrastructure/locations/unspecified"
+                      displayName: Unspecified (default)
+                      name: unspecified
+                    ref: "/infrastructure/locations/unspecified"
+                  uris:
+                    http://10.0.1.90:8088:
+                      isBackup: false
+                      isDown: false
+                      isDrain: false
+            ingress:
+              uris:
+              
+                "/beemster":
+                  matchMethod: EXACT
+                "/cheddar":
+                  matchMethod: EXACT
+                "/emmental":
+                  matchMethod: EXACT
+                "/gouda":
+                  matchMethod: EXACT
+                "/wensleydale":
+                  matchMethod: EXACT
+              gatewayRefs:
+              - ref: "/services/environments/production/gateways/cheeseproductiongateway"
+            logging:
+              accessLog:
+                state: DISABLED
+              errorLog: DISABLED
+            publishedApiRefs:
+            - ref: "/services/environments/production/apps/productioncheese/published-apis/cheeseprod"
+            security:
+              jwtClientAuth:
+                key: auth_token
+                keyLocation: COOKIE
+              identityProviderRefs:
+              - ref: "/security/identity-providers/cheese-jwt-security2"
+              rateLimits:
+                policy_1:
+                  key: "$http_x_real_ip-$request_uri"
+                  rate: 1r/s
+                  statusCode: 429
+            programmability:
+              uriRewrites:
+              - incomingPattern: "^/api/v1(.*)$"
+                rewritePattern: "$1"
+
+
+        status_code: 200,201,202
+        validate_certs: false
+
+    - name: Production - Create an App component to allow open access to the Google Login page
+      uri:
+        url: https://{{ controller_domain_name }}/api/{{ controller_api_version }}/services/environments/production/apps/productioncheese/components/loginpage
+        method: PUT
+        headers:
+          Cookie: "{{ session.set_cookie }}"
+        body_format: json
+        body:          
+          metadata:
+            createTime: '2020-08-13T15:52:54Z'
+            kind: components
+            name: loginpage
+          desiredState:
+            backend:
+              ntlmAuthentication: DISABLED
+              preserveHostHeader: DISABLED
+              workloadGroups:
+                cheesebackend:
+                  locationRefs:
+                  - links:
+                      rel: "/api/v1/infrastructure/locations/unspecified"
+                      displayName: Unspecified (default)
+                      name: unspecified
+                    ref: "/infrastructure/locations/unspecified"
+                  uris:
+                    http://10.0.1.90:8088:
+                      isBackup: false
+                      isDown: false
+                      isDrain: false
+            ingress:
+              uris:
+              
+                "/index.html":
+                  matchMethod: EXACT
+                "/js.cookie.js":
+                  matchMethod: EXACT
+
+              gatewayRefs:
+              - ref: "/services/environments/production/gateways/cheeseproductiongateway"
+            logging:
+              accessLog:
+                state: DISABLED
+              errorLog: DISABLED
+            publishedApiRefs:
+            - ref: "/services/environments/production/apps/productioncheese/published-apis/cheeseprod"
+            security:
+
+              rateLimits:
+                policy_1:
+                  key: "$http_x_real_ip-$request_uri"
+                  rate: 1r/s
+                  statusCode: 429
+            programmability:
+              uriRewrites:
+              - incomingPattern: "^/api/v1(.*)$"
+                rewritePattern: "$1"
+
+
+        status_code: 200,201,202
+        validate_certs: false
+
         
 
     - name: Create a Developer Portal to assist developers against the Cheese Application
