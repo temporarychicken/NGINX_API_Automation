@@ -55,6 +55,7 @@
           Cookie: "{{ session.set_cookie }}"
         body_format: json
         body:
+          nullfield: "null"
         status_code: 200
         validate_certs: false
       register: instances
@@ -65,28 +66,28 @@
 
     - name: Debugging info 1
       debug:
-        msg: "Instance IP address: {{ nginx_server_instances.json['items'][0].currentStatus.legacySystemMetadata.network.interfaces[1].ipv4.address}} has instance ID: {{ nginx_server_instances.json['items'][0].metadata.name}}"
+        msg: "Instance IP address: {{ nginx_server_instances.json['items'][0].currentStatus.legacySystemMetadata.network.interfaces[1].ipv4[0].address}} has instance ID: {{ nginx_server_instances.json['items'][0].metadata.name}}"
         
-    - name: Debugging info 1
+    - name: Debugging info 2
       debug:        
-        msg: "Instance IP address: {{ nginx_server_instances.json['items'][1].currentStatus.legacySystemMetadata.network.interfaces[1].ipv4.address}} has instance ID: {{ nginx_server_instances.json['items'][1].metadata.name}}"
+        msg: "Instance IP address: {{ nginx_server_instances.json['items'][1].currentStatus.legacySystemMetadata.network.interfaces[1].ipv4[0].address}} has instance ID: {{ nginx_server_instances.json['items'][1].metadata.name}}"
         
-    - name: Debugging info 1
+    - name: Debugging info 3
       debug:
-        msg: "Instance IP address: {{ nginx_server_instances.json['items'][2].currentStatus.legacySystemMetadata.network.interfaces[1].ipv4.address}} has instance ID: {{ nginx_server_instances.json['items'][2].metadata.name}}"
+        msg: "Instance IP address: {{ nginx_server_instances.json['items'][2].currentStatus.legacySystemMetadata.network.interfaces[1].ipv4[0].address}} has instance ID: {{ nginx_server_instances.json['items'][2].metadata.name}}"
         
         
     - name: get Instance ID for gateway1 which is getting DNS resolution from cheese-staging.nginxplus.net
       set_fact:
-        gateway1_instance_id: "{{ nginx_server_instances.json|json_query('items[?currentStatus.legacySystemMetadata.network.interfaces[1].ipv4.address == `{}`]|[0].metadata.name'.format(gateway1_target_ip)) }}"
+        gateway1_instance_id: "{{ nginx_server_instances.json|json_query('items[?currentStatus.legacySystemMetadata.network.interfaces[1].ipv4[0].address == `{}`]|[0].metadata.name'.format(gateway1_target_ip)) }}"
 
     - name: get Instance ID for gateway2 which is getting DNS resolution from cheese.nginxplus.net
       set_fact:
-        gateway2_instance_id: "{{ nginx_server_instances.json|json_query('items[?currentStatus.legacySystemMetadata.network.interfaces[1].ipv4.address == `{}`]|[0].metadata.name'.format(gateway2_target_ip)) }}"
+        gateway2_instance_id: "{{ nginx_server_instances.json|json_query('items[?currentStatus.legacySystemMetadata.network.interfaces[1].ipv4[0].address == `{}`]|[0].metadata.name'.format(gateway2_target_ip)) }}"
 
     - name: get Instance ID for api backend which is getting DNS resolution from apibackend.nginxplus.net
       set_fact:
-        apibackend_instance_id: "{{ nginx_server_instances.json|json_query('items[?currentStatus.legacySystemMetadata.network.interfaces[1].ipv4.address == `{}`]|[0].metadata.name'.format(apibackend_target_ip)) }}"
+        apibackend_instance_id: "{{ nginx_server_instances.json|json_query('items[?currentStatus.legacySystemMetadata.network.interfaces[1].ipv4[0].address == `{}`]|[0].metadata.name'.format(apibackend_target_ip)) }}"
 
 
     - debug:
@@ -257,7 +258,8 @@
       set_fact:
        jwkObject: "{{lookup('url','https://www.googleapis.com/oauth2/v3/certs', split_lines=false )}}"
 
-    - name: test
+    - name: Add the key/value pair type:INLINE into the Public Key so that it's in the correct format to push towards the Controller API 
+    
       set_fact:
         #imported_var: "{{ jwkObject.content|b64decode|from_json | default([]) | combine({ 'type': 'INLINE' }) }}"
         imported_var: "{{ jwkObject | default([]) | combine({ 'type': 'INLINE' }) }}"

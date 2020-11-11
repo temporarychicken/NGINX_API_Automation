@@ -1,64 +1,214 @@
 {
-        "openapi": "3.0.0",
-        "info": {
-          "version": "v1",
-          "title": "Cheese API"
+    "openapi": "3.0.0",
+    "info": {
+        "version": "v1",
+        "title": "Cheese API"
+    },
+    "paths": {
+        "/cheddar": {
+            "x-controller-match-method": "EXACT",
+            "get": {
+                "description": "Returns an individual cheese profile.",
+                "responses": {
+                    "200": {
+                        "description": "Returns the profile of a famous cheese"
+                    }
+                }
+            }
         },
-        "paths": {
-          "/cheddar": {
+        "/emmental": {
             "x-controller-match-method": "EXACT",
             "get": {
-              "description": "Returns an individual cheese profile.",
-              "responses": {
-                "200": {
-                  "description": "Returns the profile of a famous cheese"
+                "description": "Returns an individual cheese profile.",
+                "responses": {
+                    "200": {
+                        "description": "Returns the profile of a famous cheese"
+                    }
                 }
-              }
             }
-          },
-          "/emmental": {
+        },
+        "/beemster": {
             "x-controller-match-method": "EXACT",
             "get": {
-              "description": "Returns an individual cheese profile.",
-              "responses": {
-                "200": {
-                  "description": "Returns the profile of a famous cheese"
+                "description": "Returns an individual cheese profile.",
+                "responses": {
+                    "200": {
+                        "description": "Returns the profile of a famous cheese"
+                    }
                 }
-              }
             }
-          },
-          "/beemster": {
+        },
+        "/gouda": {
             "x-controller-match-method": "EXACT",
             "get": {
-              "description": "Returns an individual cheese profile.",
-              "responses": {
-                "200": {
-                  "description": "Returns the profile of a famous cheese"
+                "description": "Returns an individual cheese profile.",
+                "responses": {
+                    "200": {
+                        "description": "Returns the profile of a famous cheese"
+                    }
                 }
-              }
             }
-          },
-          "/gouda": {
+        },
+        "/wensleydale": {
             "x-controller-match-method": "EXACT",
             "get": {
-              "description": "Returns an individual cheese profile.",
-              "responses": {
-                "200": {
-                  "description": "Returns the profile of a famous cheese"
+                "description": "Returns an individual cheese profile.",
+                "responses": {
+                    "200": {
+                        "description": "Returns the profile of a famous cheese"
+                    }
                 }
-              }
             }
-          },
-          "/wensleydale": {
-            "x-controller-match-method": "EXACT",
-            "get": {
-              "description": "Returns an individual cheese profile.",
-              "responses": {
-                "200": {
-                  "description": "Returns the profile of a famous cheese"
+        },
+        "/users": {
+            "post": {
+                "summary": "Add a new user to the Cheese system.\nThis method also allows group membership to be optionally defined.",
+                "parameters": [{
+                        "description": "This parameter indicates the group that the indicated user wishes to become a member of.",
+                        "in": "query",
+                        "name": "group",
+                        "schema": {
+                            "type": "string",
+                            "maximum": 50,
+
+                            "example": {
+                                "id": 10,
+                                "name": "DevOps team administrators"
+                            },
+                            "description": "Admin level privileges for the DevOps team.",
+                        },
+                        "examples": {
+                            "zero": {
+                                "value": 0,
+                                "summary": "A sample limit value 1"
+                            },
+                            "max": {
+                                "value": 50,
+                                "summary": "A sample limit value 2"
+                            }
+                        },
+                        "example": {
+                            "id": 123,
+                            "name": "exampletest1"
+                        }
+                    }, {
+                        "description": "This parameter indicates the duration of group membership. The value is an integer relating to the number of days. A maximum of 365 days is permitted. A value of 0 indicates no expiry.",
+                        "in": "query",
+                        "name": "renewal",
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 50,
+
+                            "example": {
+                                "id": 10,
+                                "name": "Jessica Smith"
+                            },
+                            "description": "Ougadoogoo",
+                        },
+                        "examples": {
+                            "zero": {
+                                "value": 0,
+                                "summary": "A sample limit value 1"
+                            },
+                            "max": {
+                                "value": 50,
+                                "summary": "A sample limit value 2"
+                            }
+                        },
+                        "example": {
+                            "id": 123,
+                            "name": "exampletest1"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Heated cheese with banana filling. Use wisely. Or not.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "integer"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    }
+                                },
+                                "example": {
+                                    "id": 10,
+                                    "name": "Jessica Smith",
+                                    "summary": "How now brown cow"
+                                },
+                                "example": {
+                                    "id": 178,
+                                    "name": "Alain Proust",
+                                    "role": "Customer View",
+                                    "expiry": "14-01-21"
+                                }
+                            },
+                            "example": {
+                                "id": 10,
+                                "name": "Jessica Smith"
+                            },
+                            "examples": {
+                                "Jessica": {
+                                    "value": {
+                                        "id": 10,
+                                        "name": "Jessica Smith"
+                                    }
+                                },
+                                "Ron": {
+                                    "value": {
+                                        "id": 11,
+                                        "name": "Ron Stewart"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "A 200 OK response indicates that the operation on the user has been performed.",
+                        "content": {
+                            "application/json": {
+
+                                "examples": {
+                                    "Jessica": {
+                                        "value": {
+                                            "id": 10,
+                                            "name": "Jessica Smith"
+                                        }
+                                    },
+                                    "Ron": {
+                                        "value": {
+                                            "id": 20,
+                                            "name": "Ron Stewart"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "A 403 Forbidden response indicates that the operation on the user has not been performed due to an inadequate permission level on behalf of the API client user.",
+                        "content": {
+                            "application/json": {
+
+                                "examples": {
+                                    "Jessica": {
+                                        "value": {
+
+                                            "description": "The API user does not have the required priveleges to manipulate this group."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
-              }
             }
-          }
         }
-      }
+    }
+}

@@ -49,6 +49,7 @@
           Cookie: "{{ session.set_cookie }}"
         body_format: json
         body:
+          nullfield: "null"
         status_code: 200
         validate_certs: false
       register: instances
@@ -59,28 +60,28 @@
 
     - name: Debugging info 1
       debug:
-        msg: "Instance IP address: {{ nginx_server_instances.json['items'][0].currentStatus.legacySystemMetadata.network.interfaces[1].ipv4.address}} has instance ID: {{ nginx_server_instances.json['items'][0].metadata.name}}"
+        msg: "Instance IP address: {{ nginx_server_instances.json['items'][0].currentStatus.legacySystemMetadata.network.interfaces[1].ipv4[0].address}} has instance ID: {{ nginx_server_instances.json['items'][0].metadata.name}}"
         
-    - name: Debugging info 1
+    - name: Debugging info 2
       debug:        
-        msg: "Instance IP address: {{ nginx_server_instances.json['items'][1].currentStatus.legacySystemMetadata.network.interfaces[1].ipv4.address}} has instance ID: {{ nginx_server_instances.json['items'][1].metadata.name}}"
+        msg: "Instance IP address: {{ nginx_server_instances.json['items'][1].currentStatus.legacySystemMetadata.network.interfaces[1].ipv4[0].address}} has instance ID: {{ nginx_server_instances.json['items'][1].metadata.name}}"
         
-    - name: Debugging info 1
+    - name: Debugging info 3
       debug:
-        msg: "Instance IP address: {{ nginx_server_instances.json['items'][2].currentStatus.legacySystemMetadata.network.interfaces[1].ipv4.address}} has instance ID: {{ nginx_server_instances.json['items'][2].metadata.name}}"
+        msg: "Instance IP address: {{ nginx_server_instances.json['items'][2].currentStatus.legacySystemMetadata.network.interfaces[1].ipv4[0].address}} has instance ID: {{ nginx_server_instances.json['items'][2].metadata.name}}"
         
         
     - name: get Instance ID for gateway1 which is getting DNS resolution from cheese-staging.nginxplus.net
       set_fact:
-        gateway1_instance_id: "{{ nginx_server_instances.json|json_query('items[?currentStatus.legacySystemMetadata.network.interfaces[1].ipv4.address == `{}`]|[0].metadata.name'.format(gateway1_target_ip)) }}"
+        gateway1_instance_id: "{{ nginx_server_instances.json|json_query('items[?currentStatus.legacySystemMetadata.network.interfaces[1].ipv4[0].address == `{}`]|[0].metadata.name'.format(gateway1_target_ip)) }}"
 
     - name: get Instance ID for gateway2 which is getting DNS resolution from cheese.nginxplus.net
       set_fact:
-        gateway2_instance_id: "{{ nginx_server_instances.json|json_query('items[?currentStatus.legacySystemMetadata.network.interfaces[1].ipv4.address == `{}`]|[0].metadata.name'.format(gateway2_target_ip)) }}"
+        gateway2_instance_id: "{{ nginx_server_instances.json|json_query('items[?currentStatus.legacySystemMetadata.network.interfaces[1].ipv4[0].address == `{}`]|[0].metadata.name'.format(gateway2_target_ip)) }}"
 
     - name: get Instance ID for api backend which is getting DNS resolution from apibackend.nginxplus.net
       set_fact:
-        apibackend_instance_id: "{{ nginx_server_instances.json|json_query('items[?currentStatus.legacySystemMetadata.network.interfaces[1].ipv4.address == `{}`]|[0].metadata.name'.format(apibackend_target_ip)) }}"
+        apibackend_instance_id: "{{ nginx_server_instances.json|json_query('items[?currentStatus.legacySystemMetadata.network.interfaces[1].ipv4[0].address == `{}`]|[0].metadata.name'.format(apibackend_target_ip)) }}"
 
 
     - debug:
@@ -98,6 +99,7 @@
             metadata:
               name: "{{gateway1_instance_id}}"
               displayName: "NGINX Plus API Gateway 1"
+              description: NGINX Plus API Gateway 1
               links:
                 rel: "/api/v1/infrastructure/locations/unspecified/instances/{{gateway1_instance_id}}"
         status_code: 200,201,202
@@ -114,6 +116,7 @@
             metadata:
               name: "{{gateway2_instance_id}}"
               displayName: "NGINX Plus API Gateway 2"
+              description: NGINX Plus API Gateway 2
               links:
                 rel: "/api/v1/infrastructure/locations/unspecified/instances/{{gateway2_instance_id}}"
         status_code: 200,201,202
@@ -130,6 +133,7 @@
             metadata:
               name: "{{apibackend_instance_id}}"
               displayName: "NGINX Plus API Backend"
+              description: NGINX Plus API Backend
               links:
                 rel: "/api/v1/infrastructure/locations/unspecified/instances/{{apibackend_instance_id}}"
         status_code: 200,201,202
@@ -331,7 +335,7 @@
             desiredState:
               credential:
                 type: API_KEY
-                apiKey: 4f2eca23c7f092112a90d03804fd6ab8
+                apiKey: ""
 
 
         status_code: 200,201,202
@@ -384,6 +388,8 @@
                 "/gouda":
                   matchMethod: EXACT
                 "/wensleydale":
+                  matchMethod: EXACT
+                "/users":
                   matchMethod: EXACT
               gatewayRefs:
               - ref: "/services/environments/staging/gateways/cheesevtwogateway"

@@ -67,7 +67,7 @@ export CTR_APIGW_KEY=controller.key
 #echo 'export PATH=$PATH:/snap/bin/' >>.bashrc
 
 
-until controller-installer/install.sh -n -m 127.0.0.1 -x 12321 -b false -g false -j $CONTROLLER_USERNAME -e $CONTROLLER_USERNAME -p $CONTROLLER_PASSWORD -f $NOIP_SUBNAME.$NOIP_HOSTNAME -t $CONTROLLER_FIRSTNAME -u $CONTROLLER_SURNAME -w -y --tsdb-volume-type local -a NGINX ; do sleep 10; done
+until controller-installer/install.sh -n -m 127.0.0.1 -x 12321 -b false -g false -j $CONTROLLER_USERNAME -e $CONTROLLER_USERNAME -p $CONTROLLER_PASSWORD -f $NOIP_SUBNAME.$NOIP_HOSTNAME -t $CONTROLLER_FIRSTNAME -u $CONTROLLER_SURNAME -w -y --configdb-volume-type local --tsdb-volume-type local -a NGINX ; do sleep 10; done
 
 # Apply the license file to Controller
 
@@ -191,3 +191,89 @@ ansible-playbook nginx_controller_deploy_license.yaml
 #./controller-installer/install.sh -n --smtp-host=127.0.0.1 --smtp-port=12321 --smtp-authentication=false --smtp-use-tls=false --noreply-address=d.luke@f5.com --admin-email=d.luke@f5.com --admin-password='ToiletRoll130!&$' --fqdn=nginxcontroller.hopto.org --admin-firstname=David --admin-lastname=Luke --self-signed-cert --auto-install-docker --accept-license
 
 #./controller-installer/install.sh -n -m 127.0.0.1 -x 12321 -b false -g false -j d.luke@f5.com -e d.luke@f5.com -p 'ToiletRoll130!&$' -f nginxcontroller.hopto.org -t David -u Luke -c -w -y --tsdb-volume-type local -a NGINX
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#NGINX Controller install script, version 3.11.0
+#Usage: controller-installer/install.sh [flags]
+#Required: These options will be requested by the installer if not set and --non-interactive is not used
+#   -d | --configdb-host                Config DB host
+#   -k | --configdb-port                Config DB port
+#   -r | --configdb-user                Config DB user
+#   -s | --configdb-pass                Config DB password
+#   --configdb-enable-ssl               Require a SSL connection to the Config DB
+#   --configdb-ca                       Path to the CA certificate file to use for SSL connection to the Config DB
+#   --configdb-client-cert              Path to the client certificate file to use for SSL connection to the Config DB
+#   --configdb-client-key               Path to the key file to use for SSL connection to the Config DB
+#   --configdb-volume-type              Config DB volume type (local, nfs, aws)
+#   --configdb-aws-volume-id            AWS Volume ID (required when configdb-volume-type is 'aws')
+#   --configdb-nfs-host                 Config DB NFS host (required when config-volume-type is 'nfs')
+#   --configdb-nfs-path                 Config DB NFS path (required when config-volume-type is 'nfs')
+#   -m | --smtp-host                    SMTP host
+#   -x | --smtp-port                    SMTP port
+#   -g | --smtp-use-tls                 Specify if SMTP should use TLS (true or false)
+#   -b | --smtp-authentication          Specify if SMTP server requires username and password (true or false)
+#   -l | --smtp-user                    SMTP user (required when smtp-authentication is enabled)
+#   -q | --smtp-password                SMTP password (required when smtp-authentication is enabled)
+#   -j | --noreply-address              Specify the email to show in the 'FROM' field
+#   -e | --admin-email                  Admin user email
+#   -p | --admin-password               Admin user password
+#   -f | --fqdn                         FQDN (domain) for NGINX Controller web frontend, for example, controller.example.com
+#   -t | --admin-firstname              Admin user first name
+#   -u | --admin-lastname               Admin user last name
+#   --tsdb-volume-type                  Time series database volume type (local, nfs, aws)
+#   --tsdb-aws-volume-id                AWS Volume ID (required when tsdb-volume-type is 'aws')
+#   --tsdb-nfs-host                     Time series database NFS host (required when tsdb-volume-type is 'nfs')
+#   --tsdb-nfs-path                     Time series database NFS path (required when tsdb-volume-type is 'nfs')
+#Optional: These arguments are optional specifications
+#   --apigw-cert                        SSL/TLS cert file path, cannot be used together with --self-signed-cert
+#   --apigw-key                         SSL/TLS key file path, cannot be used together with --self-signed-cert
+#   -c | --self-signed-cert             Specify if the installation process should create a self signed cert for SSL/TLS
+#   --non-interactive                   Do not ask for any user input
+#   -w | --auto-install-docker          Specify if Docker CE should be installed if missing, without confirmation
+#   -i | --passive                      Install as a cold standby, not running database migrations and not starting any services
+#   -y | --accept-license               Automatically accept EULA
+#   -h | --help
+#These options can be set as environmental variables
+#   CTR_APIGW_CERT                      SSL/TLS cert file path, cannot be used together with --self-signed-cert
+#   CTR_APIGW_KEY                       SSL/TLS key file path, cannot be used together with --self-signed-cert
+#   CTR_CONFIGDB_HOST                   Config DB host
+#   CTR_CONFIGDB_PORT                   Config DB port
+#   CTR_CONFIGDB_USER                   Config DB user
+#   CTR_CONFIGDB_PASS                   Config DB password
+#   CTR_CONFIGDB_ENABLE_SSL             Require a SSL connection to the database
+#   CTR_CONFIGDB_CA                     Path to the CA certificate file to use for SSL connection to the database
+#   CTR_CONFIGDB_CLIENT_CERT            Path to the client certificate file to use for SSL connection to the database
+#   CTR_CONFIGDB_CLIENT_KEY             Path to the key file to use for SSL connection to the database
+#   CTR_CONFIGDB_VOL_TYPE               Config DB volume type (local, nfs, aws)
+#   CTR_CONFIGDB_AWS_ID                 AWS Volume ID (required when CTR_CONFIGDB_VOL_TYPE is 'aws')
+#   CTR_CONFIGDB_NFS_HOST               Config DB NFS host (required when CTR_CONFIGDB_VOL_TYPE is 'nfs')
+#   CTR_CONFIGDB_NFS_PATH               Config DB NFS path (required when CTR_CONFIGDB_VOL_TYPE is 'nfs')
+#   CTR_SMTP_HOST                       SMTP host
+#   CTR_SMTP_PORT                       SMTP port
+#   CTR_SMTP_TLS                        Specify if SMTP should use TLS (true or false)
+#   CTR_SMTP_AUTH                       Specify if SMTP server requires username and password (true or false)
+#   CTR_SMTP_USER                       SMTP user (required when CTR_SMTP_AUTH is true)
+#   CTR_SMTP_PASS                       SMTP password (required when CTR_SMTP_AUTH is true)
+#   CTR_SMTP_FROM                       Specify the email to show in the 'FROM' field
+#   CTR_EMAIL                           Admin user email
+#   CTR_PASSWORD                        Admin user password
+#   CTR_FIRSTNAME                       Admin user first name
+#   CTR_LASTNAME                        Admin user last name
+#   CTR_FQDN                            FQDN (domain) for NGINX Controller web frontend, for example, controller.example.com
+#   CTR_TSDB_VOL_TYPE                   Time series database volume type (local, nfs, aws)
+#   CTR_TSDB_AWS_ID                     AWS Volume ID (required when CTR_TSDB_VOL_TYPE is 'aws')
+#   CTR_TSDB_NFS_HOST                   Time series database NFS host (required when CTR_TSDB_VOL_TYPE is 'nfs')
+#   CTR_TSDB_NFS_PATH                   Time series database NFS path (required when CTR_TSDB_VOL_TYPE is 'nfs')
+
