@@ -34,6 +34,10 @@ resource "null_resource" "api-backend-join-controller" {
 		"sudo sh -c 'echo -n ${ data.local_file.foo.content } >>/etc/hosts'",
 		"sudo sh -c 'echo \" controller.workshop0001.nginxdemo.net\" >>/etc/hosts'",
 		"ansible-playbook connect_nginx_server_to_controller.yaml",
+		"sudo yum install docker -y",
+		"sudo systemctl start docker",
+		"sudo docker pull bkimminich/juice-shop",
+		"sudo docker run --rm -d -p 3000:3000 bkimminich/juice-shop"
 
     ]
   }

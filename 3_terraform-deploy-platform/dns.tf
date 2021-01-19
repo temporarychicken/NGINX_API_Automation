@@ -62,6 +62,15 @@ resource "aws_route53_record" "workshop0001-cheese-staging" {
 
 }
 
+resource "aws_route53_record" "workshop0001-juiceshop-staging" {
+  zone_id = data.aws_route53_zone.selected.zone_id
+  name    = "juiceshop-staging.workshop0001.${data.aws_route53_zone.selected.name}"
+  type    = "A"
+  ttl     = "60"
+# records = ["${chomp(http.myip.body)}"]
+  records = [ aws_instance.workshop0001-nginx-plus-gateway-1.public_ip ]
+
+}
 
 resource "aws_route53_record" "workshop0001-cheese-production" {
   zone_id = data.aws_route53_zone.selected.zone_id
@@ -75,5 +84,5 @@ resource "aws_route53_record" "workshop0001-cheese-production" {
 
 # This gets your IP from a simple HTTP request - note it's V4.
 data "http" "myip" {
-  url = "http://ipv4.icanhazip.com"
+  url = "https://api.ipify.org"
 }

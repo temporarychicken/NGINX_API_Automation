@@ -48,6 +48,24 @@
         nginx_controller_API_key: "{{ctrl_globals.json.currentStatus.agentSettings.apiKey}}"
 
 
+    - name: Find the API key, this will be used to join our NGINX sever with NGINX Controller
+      uri:
+        url: "https://{{ fqdn }}/api/v1/platform/global"
+        method: "GET"
+        return_content: yes
+        status_code: 200
+        validate_certs: false
+        headers:
+          Cookie: "{{nginx_controller_session.set_cookie}}"
+      register: ctrl_globals
+      retries: 99
+      delay: 10
+      until: ctrl_globals.json.currentStatus.agentSettings.apiKey != ""
+
+    - name: Print out the APIKEY
+      ansible.builtin.debug:
+        msg:
+        - "The API Key returned from NGINX Controller is: {{ ctrl_globals.json.currentStatus.agentSettings.apiKey }}"
 
 
     - name: Download the controller-agent installer package directly from NGINX Controller
