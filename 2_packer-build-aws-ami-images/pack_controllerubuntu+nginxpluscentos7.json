@@ -413,9 +413,10 @@
 	  "type": "shell",
 	  "inline": [
 	    "#This final stage is to take out the latest NGINX PLUS and put in a legacy version that supports NAP",
-		"sudo yum remove nginx-plus -y",
-	    "sudo yum install app-protect-22+3.243.1 -y",
-		"sudo systemctl enable nginx"
+            "sudo yum remove nginx-plus -y",
+            "sudo yum install app-protect-22+3.243.1 -y",
+            "sudo yum install nginx-plus-module-njs -y",
+            "sudo systemctl enable nginx"
 		],
       "only": [
         "workshop0001-ngx-plus"
